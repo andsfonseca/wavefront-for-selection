@@ -35,7 +35,7 @@ class WavefrontForSelection:
         # Initialize OBJFile
         obj_file.write(f"mtllib {result_mtl_filename}\n")
 
-        listOfOldIds = {}
+        idsDictionary  = {}
         
         index = initial_index
 
@@ -61,7 +61,7 @@ class WavefrontForSelection:
                     obj_file.write(f"usemtl {index}\n")
                     obj_file.write(line)
                     
-                    listOfOldIds[initial_index] = split[1]
+                    idsDictionary [initial_index] = split[1]
                     
                     index += 1
                 
@@ -75,7 +75,7 @@ class WavefrontForSelection:
         mtl_file.close()
         obj_file.close()
 
-        pass
+        return result_full_path, idsDictionary
 
     @staticmethod
     def generateHexadecimalId(id):
