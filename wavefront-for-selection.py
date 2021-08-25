@@ -3,11 +3,11 @@ import os
 import sys
 
 class WavefrontForSelection:
-    
-    @staticmethod
-    def perform(original_path, result_path = ""):
 
-        #Definitions
+    @staticmethod
+    def perform(original_path, result_path=""):
+
+        # Definitions
         original_folder_path = os.path.dirname(original_path)
         original_filename = os.path.basename(original_path)
         original_basename = os.path.splitext(original_filename)[0]
@@ -22,49 +22,72 @@ class WavefrontForSelection:
             result_filename = os.path.basename(result_path)
             result_basename = os.path.splitext(result_filename)[0]
             result_mtl_filename = result_basename + ".mtl"
-        
+
         result_full_path = result_folder_path + "\\" + result_filename
-        result_mtl_full_path = result_folder_path + "\\" + result_mtl_filename 
+        result_mtl_full_path = result_folder_path + "\\" + result_mtl_filename
 
-        #Create MTLFile
-        mtl_file = open(result_mtl_full_path,"w")
+        # Create MTLFile
+        mtl_file = open(result_mtl_full_path, "w")
 
-        #Create OBJFile 
-        obj_file = open(result_full_path,"w")
+        # Create OBJFile
+        obj_file = open(result_full_path, "w")
 
-        #Initialize OBJFile
+        # Initialize OBJFile
         obj_file.write(f"mtllib {result_mtl_filename}\n")
 
-        #Reading Wavefront
+        # Reading Wavefront
         with open(original_path) as f:
             for line in f:
 
-               split = str.split(line, " ", 1)[0]
+                split = str.split(line, " ", 1)[0]
 
-               if(split[0] == "o"):
-                   
-                   #Create New Color ID
+                if(split[0] == "o"):
 
-                   #Associate to MTL
+                    # Create New Color ID
 
-                   #Associate to OBJ
-                   pass        
+                    # Associate to MTL
+
+                    # Associate to OBJ
+                    pass
 
         mtl_file.close()
         obj_file.close()
 
         pass
-    
+
+    @staticmethod
+    def generateHexadecimalId(id):
+        colors = [0.0, 0.0, 0.0]
+
+        value = id
+        division = 1
+        index = 2
+
+        while(division != 0):
+            rest = value % 256
+            division = value // 256
+            colors[index] = rest / 256
+            value = division
+
+            index -= 1
+
+            if(index == -1):
+                print("Overflow")
+                break;
+        
+        return colors
+
+
 if __name__ == "__main__":
 
     def cli():
 
         n_args = len(sys.argv)
 
-        #First Argument - Original File Path
+        # First Argument - Original File Path
         original_file_path = sys.argv[1]
 
-        #Help
+        # Help
         if(original_file_path == "-h" or original_file_path == "--help"):
             print("""
 Usage: python wavefront-for-selection.py <file>
@@ -78,7 +101,7 @@ Options:
   <result_file>          Path to file to be returned.
   -h, --help             display help for command.""")
 
-        #Second Argument - Result File Path
+        # Second Argument - Result File Path
         result_file_path = "" if n_args < 3 else sys.argv[2]
 
         WavefrontForSelection.perform(original_file_path, result_file_path)
