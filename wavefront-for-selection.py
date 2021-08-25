@@ -35,20 +35,41 @@ class WavefrontForSelection:
         # Initialize OBJFile
         obj_file.write(f"mtllib {result_mtl_filename}\n")
 
+        listOfOldIds = []
+        
+        index = 0
+
         # Reading Wavefront
         with open(original_path) as f:
             for line in f:
 
-                split = str.split(line, " ", 1)[0]
+                split = str.split(line, " ", 1)
 
                 if(split[0] == "o"):
-
+                    
                     # Create New Color ID
+                    colors = WavefrontForSelection.generateHexadecimalId(index)
 
                     # Associate to MTL
-
+                    mtl_file.write(f"newmtl {index}\n")
+                    mtl_file.write(f"Ka 1.0 1.0 1.0\n")
+                    mtl_file.write(f"Kd {colors[0]} {colors[1]} {colors[2]}\n")
+                    mtl_file.write(f"Ks 0.0 0.0 0.0\n")
+                    mtl_file.write(f"Ns 0\n")
+                    
                     # Associate to OBJ
+                    obj_file.write(f"usemtl {index}\n")
+                    obj_file.write(line)
+                    
+                    listOfOldIds.append(split[1])
+                    index += 1
+                
+                elif(split[0] == "v" or split[0] == "vn" or split[0] == "f"):
+                    obj_file.write(line)
+                elif(split[0] == "usemtl" or "mtllib"):
                     pass
+                else:
+                    print(f"Unknown {split[0]}")
 
         mtl_file.close()
         obj_file.close()
