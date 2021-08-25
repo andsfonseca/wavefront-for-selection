@@ -5,7 +5,7 @@ import sys
 class WavefrontForSelection:
 
     @staticmethod
-    def perform(original_path, result_path=""):
+    def perform(original_path, result_path="", initial_index = 1):
 
         # Definitions
         original_folder_path = os.path.dirname(original_path)
@@ -23,21 +23,21 @@ class WavefrontForSelection:
             result_basename = os.path.splitext(result_filename)[0]
             result_mtl_filename = result_basename + ".mtl"
 
+        # Fix: Same Folder
+        result_folder_path = "." if not result_folder_path else result_folder_path
+
         result_full_path = result_folder_path + "\\" + result_filename
         result_mtl_full_path = result_folder_path + "\\" + result_mtl_filename
-
         # Create MTLFile
         mtl_file = open(result_mtl_full_path, "w")
-
         # Create OBJFile
         obj_file = open(result_full_path, "w")
-
         # Initialize OBJFile
         obj_file.write(f"mtllib {result_mtl_filename}\n")
 
-        listOfOldIds = []
+        listOfOldIds = {}
         
-        index = 0
+        index = initial_index
 
         # Reading Wavefront
         with open(original_path) as f:
@@ -52,16 +52,17 @@ class WavefrontForSelection:
 
                     # Associate to MTL
                     mtl_file.write(f"newmtl {index}\n")
-                    mtl_file.write(f"Ka 1.0 1.0 1.0\n")
+                    mtl_file.write(f"Ka 1.0\n")
                     mtl_file.write(f"Kd {colors[0]} {colors[1]} {colors[2]}\n")
-                    mtl_file.write(f"Ks 0.0 0.0 0.0\n")
-                    mtl_file.write(f"Ns 0\n")
+                    # mtl_file.write(f"Ks 0.0 0.0 0.0\n")
+                    # mtl_file.write(f"Ns 0\n")
                     
                     # Associate to OBJ
                     obj_file.write(f"usemtl {index}\n")
                     obj_file.write(line)
                     
-                    listOfOldIds.append(split[1])
+                    listOfOldIds[initial_index] = split[1]
+                    
                     index += 1
                 
                 elif(split[0] == "v" or split[0] == "vn" or split[0] == "f"):
