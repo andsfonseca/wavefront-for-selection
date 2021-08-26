@@ -1,11 +1,11 @@
-from io import StringIO
+import json
 import os
 import sys
 
 class WavefrontForSelection:
 
     @staticmethod
-    def perform(original_path, result_path="", initial_index = 1):
+    def perform(original_path, result_path="", initial_index = 1, save_dictionary_json = True):
 
         # Definitions
         original_folder_path = os.path.dirname(original_path)
@@ -54,14 +54,12 @@ class WavefrontForSelection:
                     mtl_file.write(f"newmtl {index}\n")
                     mtl_file.write(f"Ka 1.0\n")
                     mtl_file.write(f"Kd {colors[0]} {colors[1]} {colors[2]}\n")
-                    # mtl_file.write(f"Ks 0.0 0.0 0.0\n")
-                    # mtl_file.write(f"Ns 0\n")
                     
                     # Associate to OBJ
                     obj_file.write(f"usemtl {index}\n")
                     obj_file.write(line)
                     
-                    idsDictionary [initial_index] = split[1]
+                    idsDictionary [index] = str.split(split[1], "\n")[0]
                     
                     index += 1
                 
@@ -74,6 +72,15 @@ class WavefrontForSelection:
 
         mtl_file.close()
         obj_file.close()
+        
+        # If True return the paths
+        if save_dictionary_json:
+            result_json_full_path = result_folder_path + "\\" + result_basename + ".json"
+            dict_file = open(result_json_full_path, "w") 
+            json.dump(idsDictionary, dict_file, indent = 6) 
+            dict_file.close()
+            
+            return result_full_path, result_json_full_path
 
         return result_full_path, idsDictionary
 
