@@ -2,10 +2,12 @@ import json
 import os
 import sys
 
+MAX_AMOUNT_FLOAT_ID = 10000000
+
 class WavefrontForSelection:
 
     @staticmethod
-    def perform(original_path, result_path="", initial_index = 1, save_dictionary_json = True):
+    def perform(original_path, result_path="", initial_index = 1, save_dictionary_json = True, type="Uint8"):
 
         # Definitions
         original_folder_path = os.path.dirname(original_path)
@@ -48,8 +50,8 @@ class WavefrontForSelection:
                 if(split[0] == "o"):
                     
                     # Create New Color ID
-                    colors = WavefrontForSelection.generateHexadecimalId(index)
-
+                    colors = WavefrontForSelection.generateId(index, type)
+                    
                     # Associate to MTL
                     mtl_file.write(f"newmtl {index}\n")
                     mtl_file.write(f"Ka 1.0\n")
@@ -85,27 +87,46 @@ class WavefrontForSelection:
         return result_full_path, idsDictionary
 
     @staticmethod
-    def generateHexadecimalId(id):
-        colors = [0.0, 0.0, 0.0]
+    def generateId(id, type="Uint8"):
 
-        value = id
-        division = 1
-        index = 2
+        if(type == "Uint8"):
+            colors = [0.0, 0.0, 0.0]
+            value = id
+            division = 1
+            index = 2
 
-        while(division != 0):
-            rest = value % 256
-            division = value // 256
-            colors[index] = rest / 256
-            value = division
+            while(division != 0):
+                rest = value % 256
+                division = value // 256
+                colors[index] = rest / 256
+                value = division
 
-            index -= 1
+                index -= 1
 
-            if(index == -1):
-                print("Overflow")
-                break;
+                if(index == -1):
+                    print("Overflow")
+                    break;
+            return colors
         
-        return colors
+        if(type == "Float32"):
+            colors = [0.0, 0.0, 0.0]
+            value = id
 
+            division = 1
+            index = 2
+
+            while(division != 0):
+                rest = value % MAX_AMOUNT_FLOAT_ID
+                division = value // MAX_AMOUNT_FLOAT_ID
+                colors[index] = rest / MAX_AMOUNT_FLOAT_ID
+                value = division
+
+                index -= 1
+
+                if(index == -1):
+                    print("Overflow")
+                    break;
+            return colors
 
 if __name__ == "__main__":
 
