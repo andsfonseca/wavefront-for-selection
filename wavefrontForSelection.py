@@ -7,9 +7,22 @@ MAX_DECIMAL_NUMBERS = 7
 
 
 class WavefrontForSelection:
-
+    """This class is responsible for transforming wavefront files into a format that allows texture selection.
+    """
     @staticmethod
     def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, type="Uint8"):
+        """Given a wavefront, recreates a file that allows texture selection.
+
+        Parameters:
+            original_path (String): Path to original file.
+            result_path (String): Path to resulting file. If empty, the suffix '_picking' is used.
+            initial_index (Integer): Initial Index for ID generation.
+            save_dictionary_json (Boolean): Informs whether to save the identifiers in a json. (Can change the output)
+            type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8' and 'Float32'.
+        Returns:
+            (tuple[String, String]): Location of resulting file and json
+            (tuple[String, Dict]): Location of resulting file and the identifiers dictionary 
+        """
 
         # Definitions
         original_folder_path = os.path.dirname(original_path)
@@ -32,6 +45,7 @@ class WavefrontForSelection:
 
         result_full_path = result_folder_path + "\\" + result_filename
         result_mtl_full_path = result_folder_path + "\\" + result_mtl_filename
+
         # Create MTLFile
         mtl_file = open(result_mtl_full_path, "w")
         # Create OBJFile
@@ -90,6 +104,14 @@ class WavefrontForSelection:
 
     @staticmethod
     def generateId(id, type="Uint8"):
+        """Given a identifier, generates a specific color
+
+        Parameters:
+            id (number): identifier or any number
+            type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8' and 'Float32'.
+        Returns:
+            Array: The color of the identifier 
+        """
 
         if(type == "Uint8"):
             colors = [0.0, 0.0, 0.0]
