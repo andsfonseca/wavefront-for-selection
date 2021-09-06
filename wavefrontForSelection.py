@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
         # If Only One Argument
         if(n_args == 1):
-            raise ValueError("No parth")
+            raise ValueError("No path")
 
         if(n_args == 2):
 
