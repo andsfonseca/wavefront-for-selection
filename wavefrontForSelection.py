@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import re
 
 MAX_AMOUNT_FLOAT_ID = 10000000
 MAX_DECIMAL_NUMBERS = 7
@@ -10,7 +11,7 @@ class WavefrontForSelection:
     """This class is responsible for transforming wavefront files into a format that allows texture selection.
     """
     @staticmethod
-    def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, type="Uint8"):
+    def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, type="Uint8", mode="Texture"):
         """Given a wavefront, recreates a file that allows texture selection.
 
         Parameters:
@@ -24,73 +25,98 @@ class WavefrontForSelection:
             (tuple[String, Dict]): Location of resulting file and the identifiers dictionary 
         """
 
-        # Definitions
-        original_folder_path = os.path.dirname(original_path)
-        original_filename = os.path.basename(original_path)
-        original_basename = os.path.splitext(original_filename)[0]
+        #Warning
+        if(type == "Float32"):
+            print("Warning: All floating point values cannot be stored exactly as they are in memory. \
+So, if we want to store an Id, the 'floating' cannot store it as is. Instead, the binary can \
+only store a closer approximation value.")
 
-        if not result_path:
-            result_folder_path = original_folder_path
-            result_basename = original_basename + "_picking"
-            result_filename = result_basename + ".obj"
-            result_mtl_filename = result_basename + ".mtl"
-        else:
-            result_folder_path = os.path.dirname(result_path)
-            result_filename = os.path.basename(result_path)
-            result_basename = os.path.splitext(result_filename)[0]
-            result_mtl_filename = result_basename + ".mtl"
+        #Create Safe Names
+        result_folder_path, result_full_path, result_basename, result_mtl_full_path, result_mtl_filename = WavefrontForSelection.createSafeNames(original_path, result_path)
 
-        # Fix: Same Folder
-        result_folder_path = "." if not result_folder_path else result_folder_path
-
-        result_full_path = result_folder_path + "\\" + result_filename
-        result_mtl_full_path = result_folder_path + "\\" + result_mtl_filename
-
-        # Create MTLFile
-        mtl_file = open(result_mtl_full_path, "w")
         # Create OBJFile
         obj_file = open(result_full_path, "w")
-        # Initialize OBJFile
-        obj_file.write(f"mtllib {result_mtl_filename}\n")
 
+        #Dictionary of Ids
         idsDictionary = {}
 
+        #Current Index
         index = initial_index
 
-        # Reading Wavefront
-        with open(original_path) as f:
-            for line in f:
+        #Write a texture file
+        if(mode == "Texture"):
 
-                split = str.split(line, " ", 1)
+            # Create MTLFile
+            mtl_file = open(result_mtl_full_path, "w")
 
-                if(split[0] == "o"):
+            # Initialize OBJFile
+            obj_file.write(f"mtllib {result_mtl_filename}\n")
 
-                    # Create New Color ID
-                    colors = WavefrontForSelection.generateId(index, type)
+            # Reading Wavefront
+            with open(original_path) as f:
 
-                    # Associate to MTL
-                    mtl_file.write(f"newmtl {index}\n")
-                    mtl_file.write(f"Ka 1.0\n")
-                    mtl_file.write(f"Kd {colors[0]:.7f} {colors[1]:.7f} {colors[2]:.7f}\n")
+                #For each line
+                for line in f:
 
-                    # Associate to OBJ
-                    obj_file.write(f"usemtl {index}\n")
-                    obj_file.write(line)
+                    split = str.split(line, " ", 1)
 
-                    idsDictionary[index] = str.split(split[1], "\n")[0]
+                    if(split[0] == "o"):
 
-                    index += 1
+                        # Create New Color ID
+                        colors = WavefrontForSelection.generateColorId(index, type)
 
-                elif(split[0] == "v" or split[0] == "vn" or split[0] == "f"):
-                    obj_file.write(line)
-                elif(split[0] == "usemtl" or "mtllib"):
-                    pass
-                else:
-                    print(f"Unknown {split[0]}")
+                        # Associate to MTL
+                        mtl_file.write(f"newmtl {index}\n")
+                        mtl_file.write(f"Ka 1.0\n")
+                        mtl_file.write(f"Kd {colors[0]:.7f} {colors[1]:.7f} {colors[2]:.7f}\n")
 
-        mtl_file.close()
+                        # Associate to OBJ
+                        obj_file.write(f"usemtl {index}\n")
+                        obj_file.write(line)
+
+                        idsDictionary[index] = str.split(split[1], "\n")[0]
+
+                        index += 1
+
+                    elif(split[0] == "v" or split[0] == "vn" or split[0] == "f"):
+                        obj_file.write(line)
+                    elif(split[0] == "usemtl" or "mtllib"):
+                        pass
+                    else:
+                        print(f"Unknown {split[0]}")
+
+            mtl_file.close()
+            
+        elif(mode == "Vertex"):
+
+            # Reading Wavefront
+            with open(original_path) as f:
+                index -= 1
+                #For each line
+                for line in f:
+
+                    split = str.split(line, " ", 1)
+
+                    if(split[0] == "o"):
+                        obj_file.write(line)
+                        idsDictionary[index] = str.split(split[1], "\n")[0]
+                        index += 1
+                    elif(split[0] == "v" ):
+                        values = re.findall(r"[-+]?\d*\.\d+|\d+", split[1])
+                        if(len(values) == 4):
+                            print("W value is used, exiting...")
+                            return None, None
+
+                        obj_file.write(f"v {values[0]} {values[1]} {values[2]} {index}.0\n")
+
+                    elif(split[0] == "vn" or split[0] == "f"):
+                        obj_file.write(line)
+                    elif(split[0] == "usemtl" or "mtllib"):
+                        pass
+                    else:
+                        print(f"Unknown {split[0]}")
+
         obj_file.close()
-
         # If True return the paths
         if save_dictionary_json:
             result_json_full_path = result_folder_path + "\\" + result_basename + ".json"
@@ -103,7 +129,7 @@ class WavefrontForSelection:
         return result_full_path, idsDictionary
 
     @staticmethod
-    def generateId(id, type="Uint8"):
+    def generateColorId(id, type="Uint8"):
         """Given a identifier, generates a specific color
 
         Parameters:
@@ -133,6 +159,7 @@ class WavefrontForSelection:
             return colors
 
         if(type == "Float32"):
+            
             colors = [0.0, 0.0, 0.0]
             value = id
 
