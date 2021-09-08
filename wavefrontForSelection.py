@@ -216,6 +216,7 @@ if __name__ == "__main__":
         initial_index = 1
         ignore_json = False
         type = "Uint8"
+        mode = "Texture"
 
         # If Only One Argument
         if(n_args == 1):
@@ -261,6 +262,14 @@ if __name__ == "__main__":
                     ignore_json = True
                     args_index += 1
                 
+                elif(sys.argv[args_index] == "-m" or sys.argv[args_index] == "--mode"):
+
+                    if(args_index + 1 >= n_args):
+                        raise ValueError("no value")
+                    
+                    mode = sys.argv[args_index+1]
+
+                    args_index += 2
                 elif(sys.argv[args_index] == "-t" or sys.argv[args_index] == "--type"):
 
                     if(args_index + 1 >= n_args):
@@ -286,12 +295,15 @@ Options:
   [-o, --output] <file>             Path to resulting file. (default: '')
   [-ii, --initial_index] <index>    Initial Index for ID generation (default: 1)
   -ij, --ignore-json                Skip creating a JSON with the Ids and their original names
-  [-t, --type] <type>               Type of Indexing that must be created. Accepted arguments: 'Uint8' 
-                                    and 'Float32'. (default: 'Uint8') 
+  [-m, --mode] <mode>               ID generation strategy, informs whether the identifier should be
+                                    placed on the texture or on the vertex. Accepted arguments:
+                                    'Texture' and 'Vertex'. (default: 'Texture') 
+  [-t, --type] <type>               Texture mode only. Type of Indexing that must be created. Accepted
+                                    arguments: 'Uint8' and 'Float32'. (default: 'Uint8') 
   -h, --help                        display help for command.""")
 
         else:
             
-            WavefrontForSelection.perform(original_file_path, result_file_path,initial_index, not ignore_json, type)
+            WavefrontForSelection.perform(original_file_path, result_file_path,initial_index, not ignore_json, type, mode)
 
     cli()
