@@ -152,6 +152,29 @@ class WavefrontForSelection:
                     break
             return colors
 
+    def createSafeNames(original_path, result_path=""):
+        original_folder_path = os.path.dirname(original_path)
+        original_filename = os.path.basename(original_path)
+        original_basename = os.path.splitext(original_filename)[0]
+
+        if not result_path:
+            result_folder_path = original_folder_path
+            result_basename = original_basename + "_picking"
+            result_filename = result_basename + ".obj"
+            result_mtl_filename = result_basename + ".mtl"
+        else:
+            result_folder_path = os.path.dirname(result_path)
+            result_filename = os.path.basename(result_path)
+            result_basename = os.path.splitext(result_filename)[0]
+            result_mtl_filename = result_basename + ".mtl"
+
+        # Fix: Same Folder
+        result_folder_path = "." if not result_folder_path else result_folder_path
+
+        result_full_path = result_folder_path + "\\" + result_filename
+        result_mtl_full_path = result_folder_path + "\\" + result_mtl_filename
+
+        return result_folder_path, result_full_path, result_basename, result_mtl_full_path, result_mtl_filename      
 
 if __name__ == "__main__":
 
