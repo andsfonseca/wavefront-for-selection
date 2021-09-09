@@ -4,7 +4,7 @@ Allows you to transform wavefront files into a format that allows texture select
 
 ## What is?
 
-This code allows you to read a wavefront (.obj). For each mesh of stitches in different groups (separated by name or color), the group will receive a numerical identifier. The original mesh color will be reconstructed to match this new identifier.
+This code allows you to read a wavefront (.obj). For each mesh of stitches in different groups (separated by name or color), the group will receive a numerical identifier. The original mesh color or the vertex will be reconstructed to match this new identifier.
 
 ## Usage
 
@@ -19,7 +19,7 @@ python wavefrontForSelection.py <file>
 For more advanced options see the commands with details below :
 
 ```shell
-python wavefrontForSelection.py -i <file> -o <output_file> -ii <number> [-ij] -t <type>
+python wavefrontForSelection.py -i <file> -o <output_file> -ii <number> [-ij] -m <mode> -t <type>
 ```
 
 |        Flag               |                                    Description                                    |     Required       |
@@ -28,6 +28,7 @@ python wavefrontForSelection.py -i <file> -o <output_file> -ii <number> [-ij] -t
 | `-o`, `--output`          | Path to resulting file.                                                           | No, default `''`    |
 | `-ii`, `--initial_index/` | Initial Index for ID generation.                                                  | No, default `1`     |
 | `-ij`, `--ignore-json`    | Skip creating a JSON with the Ids and their original names.                       | No                  |
+| `-m`, `--mode`            | ID generation strategy, informs whether the identifier should be placed on the texture or on the vertex. Accepted arguments: 'Texture' and 'Vertex'. | No, default `Texture` |
 | `-t`, `--type`            | Type of Indexing that must be created. Accepted arguments: 'Uint8' and 'Float32'. | No, default `Uint8` |
 | `-h`, `--help`            | Display help for command.                                                         | No                  |
 
@@ -44,7 +45,7 @@ from wavefrontForSelection import WavefrontForSelection
 The method "perform" offers the same functionality displayed in the CLI:
 
 ```python
-WavefrontForSelection.perform(file, result_path="",initial_index=1,save_dictionary_json=True, type="Uint8")
+WavefrontForSelection.perform(file, result_path="",initial_index=1,save_dictionary_json=True, type="Uint8", mode="Texture")
 ```
 
 The method will return two outputs: A path to the OBJ file and another to the JSON with the identifiers 
