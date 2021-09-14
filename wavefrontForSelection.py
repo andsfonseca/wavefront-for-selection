@@ -86,7 +86,8 @@ only store a closer approximation value.")
                         print(f"Unknown {split[0]}")
 
             mtl_file.close()
-            
+        
+        #Write in w
         elif(mode == "Vertex"):
 
             # Reading Wavefront
@@ -110,6 +111,37 @@ only store a closer approximation value.")
                         obj_file.write(f"v {values[0]} {values[1]} {values[2]} {index}.0\n")
 
                     elif(split[0] == "vn" or split[0] == "f"):
+                        obj_file.write(line)
+                    elif(split[0] == "usemtl" or "mtllib"):
+                        pass
+                    else:
+                        print(f"Unknown {split[0]}")
+        
+        #Write in Texture Coordinates:
+        elif (mode == "TextureCoordinates"):
+            # Reading Wavefront
+            with open(original_path) as f:
+                index -= 1
+                vertex_count = 0
+                #For each line
+                for line in f:
+
+                    split = str.split(line, " ", 1)
+
+                    if(split[0] == "o"):
+                        for _ in range(vertex_count):
+                            obj_file.write(f"vt {(index/MAX_AMOUNT_FLOAT_ID):.7f}\n")
+
+                        obj_file.write(line)
+                        idsDictionary[index] = str.split(split[1], "\n")[0]
+                        index += 1
+                    elif (split[0] == "v"):
+                        vertex_count += 1
+                        obj_file.write(line)
+                    elif(split[0] == "vn" or split[0] == "f"):
+                        for _ in range(vertex_count):
+                            obj_file.write(f"vt {(index/MAX_AMOUNT_FLOAT_ID):.7f} 0.0\n")
+                        vertex_count = 0
                         obj_file.write(line)
                     elif(split[0] == "usemtl" or "mtllib"):
                         pass
