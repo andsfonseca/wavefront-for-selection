@@ -148,6 +148,35 @@ only store a closer approximation value.")
                     else:
                         print(f"Unknown {split[0]}")
 
+        #Write in Normal:
+        elif (mode == "Normal"):
+            # Reading Wavefront
+            with open(original_path) as f:
+                index -= 1
+                vertex_count = 0
+                #For each line
+                string = ""
+                for line in f:
+
+                    split = str.split(line, " ", 1)
+                    
+
+                    if(split[0] == "o"):
+                        # Create New Color ID
+                        colors = WavefrontForSelection.generateColorId(index, type)
+                        string = f"vn {colors[0]:.7f} {colors[1]:.7f} {colors[2]:.7f}\n"
+                        idsDictionary[index] = str.split(split[1], "\n")[0]
+                        index += 1
+                    elif (split[0] == "v"):
+                        obj_file.write(line)
+                        obj_file.write(string)
+                    elif(split[0] == "f"):
+                        vertex_count = 0
+                        obj_file.write(line)
+                    elif(split[0] == "usemtl" or split[0] == "mtllib" or split[0] == "vn"):
+                        pass
+                    else:
+                        print(f"Unknown {split[0]}")
         obj_file.close()
         # If True return the paths
         if save_dictionary_json:
