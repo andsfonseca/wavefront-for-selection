@@ -13,7 +13,7 @@ class WavefrontForSelection:
     """This class is responsible for transforming wavefront files into a format that allows texture selection.
     """
     @staticmethod
-    def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, type="Uint8", mode="Texture"):
+    def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, type="Uint8", mode="Texture", ensureNormalization = False):
         """Given a wavefront, recreates a file that allows texture selection.
 
         Parameters:
@@ -165,9 +165,18 @@ only store a closer approximation value.")
                     if(split[0] == "o"):
                         # Create New Color ID
                         colors = WavefrontForSelection.generateColorId(index+1, type)
+
+                        if ensureNormalization:
+                            if colors[0] > 0:
+                                print("Index overflow. Reconsider using a larger type!")
+
+                            colors[0] = 1 - (colors[1] + colors[2])
+
                         string = f"vn {colors[0]:.7f} {colors[1]:.7f} {colors[2]:.7f}\n"
+
                         idsDictionary[index] = str.split(split[1], "\n")[0]
                         index += 1
+
                     elif (split[0] == "v"):
                         obj_file.write(line)
                         obj_file.write(string)
