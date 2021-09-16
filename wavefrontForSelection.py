@@ -3,9 +3,11 @@ import os
 import sys
 import re
 
-MAX_AMOUNT_FLOAT_ID = 10000000
-MAX_DECIMAL_NUMBERS = 7
+BIT_8 = 2**8
+BIT_16 = 2**16
+BIT_32 = 2**32
 
+MAX_DECIMAL_NUMBERS = 7
 
 class WavefrontForSelection:
     """This class is responsible for transforming wavefront files into a format that allows texture selection.
@@ -130,7 +132,7 @@ only store a closer approximation value.")
 
                     if(split[0] == "o"):
                         for _ in range(vertex_count):
-                            obj_file.write(f"vt {(index/MAX_AMOUNT_FLOAT_ID):.7f}\n")
+                            obj_file.write(f"vt {(index/BIT_32):.7f}\n")
 
                         obj_file.write(line)
                         idsDictionary[index] = str.split(split[1], "\n")[0]
@@ -140,7 +142,7 @@ only store a closer approximation value.")
                         obj_file.write(line)
                     elif(split[0] == "vn" or split[0] == "f"):
                         for _ in range(vertex_count):
-                            obj_file.write(f"vt {(index/MAX_AMOUNT_FLOAT_ID):.7f} 0.0\n")
+                            obj_file.write(f"vt {(index/BIT_32):.7f} 0.0\n")
                         vertex_count = 0
                         obj_file.write(line)
                     elif(split[0] == "usemtl" or "mtllib"):
@@ -163,7 +165,7 @@ only store a closer approximation value.")
 
                     if(split[0] == "o"):
                         # Create New Color ID
-                        colors = WavefrontForSelection.generateColorId(index, type)
+                        colors = WavefrontForSelection.generateColorId(index+1, type)
                         string = f"vn {colors[0]:.7f} {colors[1]:.7f} {colors[2]:.7f}\n"
                         idsDictionary[index] = str.split(split[1], "\n")[0]
                         index += 1
@@ -220,7 +222,6 @@ only store a closer approximation value.")
             return colors
 
         if(type == "Float32"):
-            
             colors = [0.0, 0.0, 0.0]
             value = id
 
@@ -228,9 +229,29 @@ only store a closer approximation value.")
             index = 2
 
             while(division != 0):
-                rest = value % MAX_AMOUNT_FLOAT_ID
-                division = value // MAX_AMOUNT_FLOAT_ID
-                colors[index] = rest / MAX_AMOUNT_FLOAT_ID
+                rest = value % BIT_32
+                division = value // BIT_32
+                colors[index] = rest / BIT_32
+                value = division
+
+                index -= 1
+
+                if(index == -1):
+                    print("Overflow")
+                    break
+            return colors
+        
+        if(type == "Binary16"):
+            colors = [0.0, 0.0, 0.0]
+            value = id
+
+            division = 1
+            index = 2
+
+            while(division != 0):
+                rest = value % BIT_16
+                division = value // BIT_16
+                colors[index] = rest / BIT_16
                 value = division
 
                 index -= 1
