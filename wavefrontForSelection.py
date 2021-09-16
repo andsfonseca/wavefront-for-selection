@@ -28,7 +28,7 @@ class WavefrontForSelection:
         """
 
         #Warning
-        if(type == "Float32"):
+        if(type == "Float32" or type == "Binary16"):
             print("Warning: All floating point values cannot be stored exactly as they are in memory. \
 So, if we want to store an Id, the 'floating' cannot store it as is. Instead, the binary can \
 only store a closer approximation value.")
@@ -162,7 +162,6 @@ only store a closer approximation value.")
 
                     split = str.split(line, " ", 1)
                     
-
                     if(split[0] == "o"):
                         # Create New Color ID
                         colors = WavefrontForSelection.generateColorId(index+1, type)
@@ -202,64 +201,31 @@ only store a closer approximation value.")
             Array: The color of the identifier 
         """
 
-        if(type == "Uint8"):
-            colors = [0.0, 0.0, 0.0]
-            value = id
-            division = 1
-            index = 2
+        colors = [0.0, 0.0, 0.0]
+        value = id
+        division = 1
+        index = 2
 
-            while(division != 0):
-                rest = value % 256
-                division = value // 256
-                colors[index] = rest / 256
-                value = division
+        bit = BIT_8
 
-                index -= 1
-
-                if(index == -1):
-                    print("Overflow")
-                    break
-            return colors
-
-        if(type == "Float32"):
-            colors = [0.0, 0.0, 0.0]
-            value = id
-
-            division = 1
-            index = 2
-
-            while(division != 0):
-                rest = value % BIT_32
-                division = value // BIT_32
-                colors[index] = rest / BIT_32
-                value = division
-
-                index -= 1
-
-                if(index == -1):
-                    print("Overflow")
-                    break
-            return colors
-        
         if(type == "Binary16"):
-            colors = [0.0, 0.0, 0.0]
-            value = id
+            bit = BIT_16
+        elif(type == "Float32"):
+            bit = BIT_32
 
-            division = 1
-            index = 2
+        while(division != 0):
+            rest = value % bit
+            division = value // bit
+            colors[index] = rest / bit
+            value = division
 
-            while(division != 0):
-                rest = value % BIT_16
-                division = value // BIT_16
-                colors[index] = rest / BIT_16
-                value = division
+            index -= 1
 
-                index -= 1
+            if(index == -1):
+                print("Index overflow. Reconsider using a larger type!")
+                break
 
-                if(index == -1):
-                    print("Overflow")
-                    break
-            return colors
+        return colors
 
     def createSafeNames(original_path, result_path=""):
         original_folder_path = os.path.dirname(original_path)
