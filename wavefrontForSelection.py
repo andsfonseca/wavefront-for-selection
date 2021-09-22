@@ -21,9 +21,9 @@ class WavefrontForSelection:
             result_path (String): Path to resulting file. If empty, the suffix '_picking' is used.
             initial_index (Integer): Initial Index for ID generation.
             save_dictionary_json (Boolean): Informs whether to save the identifiers in a json. (Can change the output)
-            mode (String): ID generation strategy, informs whether the identifier should be placed on the texture, vertex, texture coordinate or normal. Accepted arguments:'Texture' and 'Vertex'.
+            mode (String): ID generation strategy, informs whether the identifier should be placed on the texture, vertex, texture coordinate or normal. Accepted arguments:'Texture', 'Vertex', 'TextureCoordinates' and 'Normal'.
             type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8', 'Binary16' and 'Float32'.
-            ensureNormalization (Boolean): Ensures output is normalized. Applies to identifier generation in "normal". The x-axis is used to ensure its use and should be discarded
+            ensureNormalization (Boolean): Ensures output is normalized. Applies to identifier generation in "normal". The x-axis is used to ensure its use and should be discarded.
         Returns:
             (tuple[String, String]): Location of resulting file and json
             (tuple[String, Dict]): Location of resulting file and the identifiers dictionary 
@@ -276,7 +276,7 @@ if __name__ == "__main__":
         """
         Command Line Interface Main Function 
         """
-        
+
         n_args = len(sys.argv)
 
         showHelp = False
@@ -287,6 +287,7 @@ if __name__ == "__main__":
         ignore_json = False
         type = "Uint8"
         mode = "Texture"
+        ensure_normalization = False
 
         # If Only One Argument
         if(n_args == 1):
@@ -348,6 +349,9 @@ if __name__ == "__main__":
                     type = sys.argv[args_index+1]
 
                     args_index += 2
+                elif(sys.argv[args_index] == "-en" or sys.argv[args_index] == "--ensure-normalization"):
+                    ensure_normalization = True
+                    args_index += 1
                 else:
                     args_index +=1
 
@@ -366,14 +370,18 @@ Options:
   [-ii, --initial_index] <index>    Initial Index for ID generation (default: 1)
   -ij, --ignore-json                Skip creating a JSON with the Ids and their original names
   [-m, --mode] <mode>               ID generation strategy, informs whether the identifier should be
-                                    placed on the texture or on the vertex. Accepted arguments:
-                                    'Texture' and 'Vertex'. (default: 'Texture') 
-  [-t, --type] <type>               Texture mode only. Type of Indexing that must be created. Accepted
-                                    arguments: 'Uint8', 'Binary16', 'Float32'. (default: 'Uint8') 
+                                    placed on the texture, vertex, texture coordinate or normal. 
+                                    Accepted arguments: 'Texture', 'Vertex', 'TextureCoordinates' and
+                                    'Normal'. (default: 'Texture') 
+  [-t, --type] <type>               Type of Indexing that must be created. Accepted
+                                    arguments: 'Uint8', 'Binary16', 'Float32'. (default: 'Uint8')
+  -en, --ensure-normalization       Ensures output is normalized. Applies to identifier generation in
+                                    'Normal'. The x-axis is used to ensure its use and should be
+                                    discarded.
   -h, --help                        display help for command.""")
 
         else:
             
-            WavefrontForSelection.perform(original_file_path, result_file_path,initial_index, not ignore_json, mode, type)
+            WavefrontForSelection.perform(original_file_path, result_file_path,initial_index, not ignore_json, mode, type, ensure_normalization)
 
     cli()
