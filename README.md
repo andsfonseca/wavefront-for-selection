@@ -19,17 +19,18 @@ python wavefrontForSelection.py <file>
 For more advanced options see the commands with details below :
 
 ```shell
-python wavefrontForSelection.py -i <file> -o <output_file> -ii <number> [-ij] -m <mode> -t <type>
+python wavefrontForSelection.py -i <file> -o <output_file> -ii <number> [-ij] -m <mode> -t <type> [-en]
 ```
 
 |        Flag               |                                    Description                                    |     Required       |
 |:-------------------------:|:---------------------------------------------------------------------------------:|:-------------------:|
 | `-i`, `--input`           | Path to original file.                                                            | ✅ Yes              |
 | `-o`, `--output`          | Path to resulting file.                                                           | No, default `''`    |
-| `-ii`, `--initial_index/` | Initial Index for ID generation.                                                  | No, default `1`     |
+| `-ii`, `--initial_index` | Initial Index for ID generation.                                                  | No, default `1`     |
 | `-ij`, `--ignore-json`    | Skip creating a JSON with the Ids and their original names.                       | No                  |
-| `-m`, `--mode`            | ID generation strategy, informs whether the identifier should be placed on the texture or on the vertex. Accepted arguments: 'Texture' and 'Vertex'. | No, default `Texture` |
-| `-t`, `--type`            | Type of Indexing that must be created. Accepted arguments: 'Uint8' and 'Float32'. | No, default `Uint8` |
+| `-m`, `--mode`            | ID generation strategy, informs whether the identifier should be placed on the texture, vertex, texture coordinate or normal. Accepted arguments: 'Texture', 'Vertex', 'TextureCoordinates' and 'Normal'. (default: 'Texture')| No, default `Texture` |
+| `-t`, `--type`            | Type of Indexing that must be created. Accepted arguments: 'Uint8', 'Binary16' and 'Float32'. | No, default `Uint8` |
+| `-en`, `--ensure-normalization`    | Ensures output is normalized. Applies to identifier generation in 'Normal'. The x-axis is used to ensure its use and should be discarded. | No                  |
 | `-h`, `--help`            | Display help for command.                                                         | No                  |
 
 ### Python Import
@@ -45,7 +46,7 @@ from wavefrontForSelection import WavefrontForSelection
 The method "perform" offers the same functionality displayed in the CLI:
 
 ```python
-WavefrontForSelection.perform(file, result_path="",initial_index=1,save_dictionary_json=True, type="Uint8", mode="Texture")
+WavefrontForSelection.perform(file, result_path="",initial_index=1,save_dictionary_json=True, mode="Texture", type="Uint8", ensureNormalization = False)
 ```
 
 The method will return two outputs: A path to the OBJ file and another to the JSON with the identifiers 
