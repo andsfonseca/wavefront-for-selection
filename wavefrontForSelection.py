@@ -13,7 +13,7 @@ class WavefrontForSelection:
     """This class is responsible for transforming wavefront files into a format that allows texture selection.
     """
     @staticmethod
-    def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, type="Uint8", mode="Texture", ensureNormalization = False):
+    def perform(original_path, result_path="", initial_index=1, save_dictionary_json=True, mode="Texture", type="Uint8", ensureNormalization = False):
         """Given a wavefront, recreates a file that allows texture selection.
 
         Parameters:
@@ -21,7 +21,9 @@ class WavefrontForSelection:
             result_path (String): Path to resulting file. If empty, the suffix '_picking' is used.
             initial_index (Integer): Initial Index for ID generation.
             save_dictionary_json (Boolean): Informs whether to save the identifiers in a json. (Can change the output)
-            type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8' and 'Float32'.
+            mode (String): ID generation strategy, informs whether the identifier should be placed on the texture, vertex, texture coordinate or normal. Accepted arguments:'Texture' and 'Vertex'.
+            type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8', 'Binary16' and 'Float32'.
+            ensureNormalization (Boolean): Ensures output is normalized. Applies to identifier generation in "normal". The x-axis is used to ensure its use and should be discarded
         Returns:
             (tuple[String, String]): Location of resulting file and json
             (tuple[String, Dict]): Location of resulting file and the identifiers dictionary 
@@ -205,7 +207,7 @@ only store a closer approximation value.")
 
         Parameters:
             id (number): identifier or any number
-            type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8' and 'Float32'.
+            type (String): Type of Indexing that must be created. Accepted arguments: 'Uint8', 'Binary16' and 'Float32'.
         Returns:
             Array: The color of the identifier 
         """
@@ -237,6 +239,14 @@ only store a closer approximation value.")
         return colors
 
     def createSafeNames(original_path, result_path=""):
+        """Creates the names of the files used by the application 
+
+        Parameters:
+            original_path (String): Original file path
+            type (String): Result file path
+        Returns:
+            (tuple[String, String, String, String, String]): Result File Folder, Result File Full Path, Result File Name, Result File Material Full Path, Result File Material Path 
+        """
         original_folder_path = os.path.dirname(original_path)
         original_filename = os.path.basename(original_path)
         original_basename = os.path.splitext(original_filename)[0]
@@ -263,7 +273,10 @@ only store a closer approximation value.")
 if __name__ == "__main__":
 
     def cli():
-
+        """
+        Command Line Interface Main Function 
+        """
+        
         n_args = len(sys.argv)
 
         showHelp = False
@@ -356,11 +369,11 @@ Options:
                                     placed on the texture or on the vertex. Accepted arguments:
                                     'Texture' and 'Vertex'. (default: 'Texture') 
   [-t, --type] <type>               Texture mode only. Type of Indexing that must be created. Accepted
-                                    arguments: 'Uint8' and 'Float32'. (default: 'Uint8') 
+                                    arguments: 'Uint8', 'Binary16', 'Float32'. (default: 'Uint8') 
   -h, --help                        display help for command.""")
 
         else:
             
-            WavefrontForSelection.perform(original_file_path, result_file_path,initial_index, not ignore_json, type, mode)
+            WavefrontForSelection.perform(original_file_path, result_file_path,initial_index, not ignore_json, mode, type)
 
     cli()
